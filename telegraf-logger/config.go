@@ -18,20 +18,26 @@ type TelegrafLoggerConfig struct {
 	LogMetric string
 }
 
-func NewTelegrafLoggerConfiguration(flags *flag.FlagSet) *TelegrafLoggerConfig {
+func NewTelegrafLoggerConfiguration() (*TelegrafLoggerConfig, error) {
 	logFactory := &TelegrafLoggerConfig{
 		LogFile:   "stderr",
 		LogLevel:  "warn",
 		LogFormat: "logfmt",
 		LogMetric: "log",
 	}
+	flagset := flag.NewFlagSet("main", flag.ContinueOnError)
 
-	flags.StringVar(&logFactory.LogFile, "log", "stderr", "log destination, can be \"stdout\", \"stderr\", or file path")
-	flags.StringVar(&logFactory.LogLevel, "log-level", "error", "log destination, can be \"stderr\" (default), \"stdout\", or file path")
-	flags.StringVar(&logFactory.LogLevel, "log-format", "line", "log format, can be \"logfmt\" (default), \"json\", or \"line\"")
-	flags.StringVar(&logFactory.LogLevel, "log-metric", "log", "log metric name, used for line protocol")
+	flagset.StringVar(&logFactory.LogFile, "log", "stderr", "log destination, can be \"stdout\", \"stderr\", or file path")
+	flagset.StringVar(&logFactory.LogLevel, "log-level", "error", "log destination, can be \"stderr\" (default), \"stdout\", or file path")
+	flagset.StringVar(&logFactory.LogFormat, "log-format", "line", "log format, can be \"logfmt\" (default), \"json\", or \"line\"")
+	flagset.StringVar(&logFactory.LogMetric, "log-metric", "log", "log metric name, used for line protocol")
 
-	return logFactory
+	err := flagset.Parse(os.Args[1:])
+
+	if err != nil {
+		return nil, err
+	}
+	return logFactory, nil
 }
 
 func (config *TelegrafLoggerConfig) Create() kitlog.Logger {
@@ -59,7 +65,7 @@ func (config *TelegrafLoggerConfig) Create() kitlog.Logger {
 		fallthrough
 
 	case "line":
-		klog = newLineLogger(config, outputStream)
+		klog = NewLineLogger(config, outputStream)
 
 	case "logfmt":
 		w := kitlog.NewSyncWriter(outputStream)

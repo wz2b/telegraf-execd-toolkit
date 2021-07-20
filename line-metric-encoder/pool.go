@@ -10,7 +10,7 @@ func (m *MetricEncoderPool) Get() *MetricEncoder {
 	return m.pool.Get().(*MetricEncoder)
 }
 
-func (m *MetricEncoderPool) Put(encoder interface{}){
+func (m *MetricEncoderPool) PutBack(encoder interface{}){
 	m.pool.Put(encoder)
 }
 

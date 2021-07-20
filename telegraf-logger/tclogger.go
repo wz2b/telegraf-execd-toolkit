@@ -13,7 +13,10 @@ type lineLogger struct {
 	pool   *mpool.MetricEncoderPool
 }
 
-func newLineLogger(config *TelegrafLoggerConfig, outputStream io.Writer) *lineLogger {
+//
+// Create a line-protocol logger
+//
+func NewLineLogger(config *TelegrafLoggerConfig, outputStream io.Writer) *lineLogger {
 	logger := &lineLogger{
 		config: *config,
 		writer: outputStream,
@@ -24,10 +27,7 @@ func newLineLogger(config *TelegrafLoggerConfig, outputStream io.Writer) *lineLo
 }
 
 func (l *lineLogger) Log(keyvals ...interface{}) error {
-	enc := l.pool.Get()
-	defer l.pool.Put(enc)
-
-	enc.Begin("log")
+	m := l.pool.NewMetric(l.config.LogMetric)
 
 	nargs := len(keyvals)
 	for i := 0; i < nargs; i += 2 {
@@ -38,9 +38,9 @@ func (l *lineLogger) Log(keyvals ...interface{}) error {
 			key = fmt.Sprint(key)
 		}
 		value := keyvals[i+1]
-		enc.AddField(key, value)
+		m.WithField(key, value)
 	}
-	_, err := enc.Write(l.writer)
+	_, err := m.Write(l.writer)
 
 	return err
 }

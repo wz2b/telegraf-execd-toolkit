@@ -4,13 +4,11 @@ import (
 	"bytes"
 	"github.com/influxdata/line-protocol"
 	"io"
-	"time"
 )
 
 type MetricEncoder struct {
 	buf        *bytes.Buffer
 	serializer *protocol.Encoder
-	metric     protocol.MutableMetric
 }
 
 func NewMetricEncoder() *MetricEncoder {
@@ -24,46 +22,22 @@ func NewMetricEncoder() *MetricEncoder {
 	}
 }
 
-func (enc *MetricEncoder) Begin(metricName string) *MetricEncoder {
-	now := time.Now()
-	var tags map[string]string
-	var fields map[string]interface{}
 
+func (enc *MetricEncoder) Encode(m protocol.Metric) []byte {
 	enc.buf.Reset()
-	enc.metric, _ = protocol.New(metricName, tags, fields, now)
-
-	return enc
-}
-
-func (enc *MetricEncoder) WithTime(tm time.Time) *MetricEncoder {
-	enc.metric.SetTime(tm)
-	return enc
-}
-
-func (enc *MetricEncoder) AddTag(key string, value string) *MetricEncoder {
-	enc.metric.AddTag(key, value)
-	return enc
-}
-
-func (enc *MetricEncoder) AddField(key string, value interface{}) *MetricEncoder {
-	// Check if the value is is an error.  If so, convert it to a string
-	valueAsError, valueIsError := value.(error)
-	if valueIsError {
-		value = valueAsError.Error()
-	}
-
-	enc.metric.AddField(key, value)
-	return enc
-}
-
-func (enc *MetricEncoder) Encode() []byte {
-	enc.buf.Reset()
-	enc.serializer.Encode(enc.metric)
+	enc.serializer.Encode(m)
 	return enc.buf.Bytes()
 }
 
-func (enc *MetricEncoder) Write(writer io.Writer) (int, error) {
+func (enc *MetricEncoder) Write(m protocol.Metric, writer io.Writer) (int, error) {
 	enc.buf.Reset()
-	enc.serializer.Encode(enc.metric)
+	enc.serializer.Encode(m)
 	return writer.Write(enc.buf.Bytes())
+}
+
+
+func (enc *MetricEncoderPool) NewMetric(metricName string) *WrappedMetric {
+		return createMetric(metricName, enc)
+
+
 }
