@@ -14,13 +14,20 @@ type lineLogger struct {
 }
 
 //
-// Create a line-protocol logger
+// Create a line-protocol logger using its own metric encoder pool
 //
 func NewLineLogger(config *TelegrafLoggerConfig, outputStream io.Writer) *lineLogger {
+	return NewLineLoggerUsingPool(config, outputStream, mpool.NewMetricEncoderPool())
+}
+
+//
+// Create a line-protocol logger using a provided metric encoder pool
+//
+func NewLineLoggerUsingPool(config *TelegrafLoggerConfig, outputStream io.Writer, encoderPool *mpool.MetricEncoderPool) *lineLogger {
 	logger := &lineLogger{
 		config: *config,
 		writer: outputStream,
-		pool:   mpool.NewMetricEncoderPool(),
+		pool:   encoderPool,
 	}
 
 	return logger

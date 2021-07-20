@@ -18,25 +18,29 @@ type TelegrafLoggerConfig struct {
 	LogMetric string
 }
 
-func NewTelegrafLoggerConfiguration() (*TelegrafLoggerConfig, error) {
+func NewTelegrafLoggerConfiguration(useFlags bool) (*TelegrafLoggerConfig, error) {
 	logFactory := &TelegrafLoggerConfig{
 		LogFile:   "stderr",
 		LogLevel:  "warn",
 		LogFormat: "logfmt",
 		LogMetric: "log",
 	}
-	flagset := flag.NewFlagSet("main", flag.ContinueOnError)
 
-	flagset.StringVar(&logFactory.LogFile, "log", "stderr", "log destination, can be \"stdout\", \"stderr\", or file path")
-	flagset.StringVar(&logFactory.LogLevel, "log-level", "error", "log destination, can be \"stderr\" (default), \"stdout\", or file path")
-	flagset.StringVar(&logFactory.LogFormat, "log-format", "line", "log format, can be \"logfmt\" (default), \"json\", or \"line\"")
-	flagset.StringVar(&logFactory.LogMetric, "log-metric", "log", "log metric name, used for line protocol")
+	if useFlags {
+		flagset := flag.NewFlagSet("main", flag.ContinueOnError)
 
-	err := flagset.Parse(os.Args[1:])
+		flagset.StringVar(&logFactory.LogFile, "log", "stderr", "log destination, can be \"stdout\", \"stderr\", or file path")
+		flagset.StringVar(&logFactory.LogLevel, "log-level", "error", "log destination, can be \"stderr\" (default), \"stdout\", or file path")
+		flagset.StringVar(&logFactory.LogFormat, "log-format", "line", "log format, can be \"logfmt\" (default), \"json\", or \"line\"")
+		flagset.StringVar(&logFactory.LogMetric, "log-metric", "log", "log metric name, used for line protocol")
 
-	if err != nil {
-		return nil, err
+		err := flagset.Parse(os.Args[1:])
+
+		if err != nil {
+			return nil, err
+		}
 	}
+
 	return logFactory, nil
 }
 

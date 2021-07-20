@@ -22,7 +22,6 @@ func NewMetricEncoder() *MetricEncoder {
 	}
 }
 
-
 func (enc *MetricEncoder) Encode(m protocol.Metric) []byte {
 	enc.buf.Reset()
 	enc.serializer.Encode(m)
@@ -35,9 +34,6 @@ func (enc *MetricEncoder) Write(m protocol.Metric, writer io.Writer) (int, error
 	return writer.Write(enc.buf.Bytes())
 }
 
-
 func (enc *MetricEncoderPool) NewMetric(metricName string) *WrappedMetric {
 		return createMetric(metricName, enc)
-
-
 }
