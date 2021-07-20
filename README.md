@@ -1,7 +1,14 @@
 # Telegraf Execd Toolkit
 
-This library is a set of (hopefully) useful tools for building telegraf
-external plugins.  There are two main reasons to consider using this:
+This library is a set of (hopefully) useful tools for building
+[telegraf](https://www.influxdata.com/time-series-platform/telegraf/)
+external plugins. [Telegraf](https://www.influxdata.com/time-series-platform/telegraf/)
+is a plugin-driven server agent for collecting and sending metrics and events from databases, systems,
+and IoT sensors. [Telegraf](https://www.influxdata.com/time-series-platform/telegraf/)
+is written in Go and compiles into a single binary with no external dependencies,
+and requires a very minimal memory footprint.
+
+There are two main reasons to consider using this library:
 
     * Reduce boilerplate code when it comes to generating output (metrics)
     * Make plugin log handling (logs about the plugin itself) flexible but consistent across all external plugins
@@ -19,6 +26,17 @@ by parsing command line flags, which is optional but encouraged.  If used, a plu
         "-log-format", "line",
         "-log-metric", "log" ]
 ```
+## Something to consider
+
+Before writing your own external plug-in, please look at the
+[pretty extensive list of internal plug-ins](https://docs.influxdata.com/telegraf/v1.19/plugins/).  If
+you're writing your own plugin just for fun or for the experience, by all means go for it.  Just keep
+in mind that a number of times I have thought I needed a custom plugin when one of the standard ones
+might have worked - for example, the HTTP input can get data from servers using one of the standard
+input formats (such as json) which probably covers 90% of REST use cases.
+
+Most importantly, have fun with the idea of using telegraf as a general-purpose agent.  I wrote this
+because Telegraf is one of my favorite open-source projects and it's the glue of my IoT and IIoT world.
 
 ## Metric Generation and Encoding
 
@@ -202,7 +220,9 @@ it's an issue, you can always direct your plugin's logs to its own file.  For mo
 writing to standard error (the default) is sufficient.
 
    
-
 For more information on how level-based logging works in go-kit's logger see
 https://pkg.go.dev/github.com/go-kit/kit/log/level
 
+# Questions
+If you have problems (even if it's just a question) please
+[create an issue](https://github.com/wz2b/telegraf-execd-toolkit/issues)
