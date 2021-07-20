@@ -43,13 +43,13 @@ func (w *WrappedMetric) BuildTag(key string) *TagBuilder {
 
 // Emit a tag
 func (m *TagBuilder) Value(value string) *WrappedMetric {
-	return m.Value(value)
+	return m.wrappedMetric.WithTag(m.key, value)
 }
 
 // Emit a tag if err != nil
 func (m *TagBuilder) ValueIfNoErr(value string, err error) *WrappedMetric {
 	if err != nil {
-		return m.wrappedMetric.WithTag(m.key, value)
+		return m.Value(value)
 	}
 	return m.wrappedMetric
 }
