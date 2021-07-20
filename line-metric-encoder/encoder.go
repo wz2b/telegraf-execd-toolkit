@@ -24,7 +24,7 @@ func NewMetricEncoder() *MetricEncoder {
 	}
 }
 
-func (enc *MetricEncoder) Begin(metricName string) *MetricEncoder{
+func (enc *MetricEncoder) Begin(metricName string) *MetricEncoder {
 	now := time.Now()
 	var tags map[string]string
 	var fields map[string]interface{}
@@ -35,7 +35,7 @@ func (enc *MetricEncoder) Begin(metricName string) *MetricEncoder{
 	return enc
 }
 
-func (enc *MetricEncoder) WithTime(tm time.Time) *MetricEncoder{
+func (enc *MetricEncoder) WithTime(tm time.Time) *MetricEncoder {
 	enc.metric.SetTime(tm)
 	return enc
 }

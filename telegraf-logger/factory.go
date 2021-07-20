@@ -1,4 +1,4 @@
-package tlogger
+package telegraf_logger
 
 import (
 	"flag"
