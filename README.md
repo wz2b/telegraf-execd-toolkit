@@ -10,8 +10,8 @@ and requires a very minimal memory footprint.
 
 There are two main reasons to consider using this library:
 
-    * Reduce boilerplate code when it comes to generating output (metrics)
-    * Make plugin log handling (logs about the plugin itself) flexible but consistent across all external plugins
+* Reduce boilerplate code when it comes to generating output (metrics)
+* Make plugin log handling (logs about the plugin itself) flexible but consistent across all external plugins
 
 Metric serialization (encoding the metrics to bytes, to a string, or to an io.Writer like standard output) is
 accomplished with an easy-to-use encoding pool that tries to minimize buffer churn.  Logging can be configured
@@ -60,10 +60,10 @@ This library provides an alternate approach that removes some of the boilerplate
 the Influx Data library.  The metrics that it creates are still MutableMetrics so you have access to the
 normal MutableMetric methods but with a little bit of functionality added on top:
 
-    * A fluent interface for adding fields and tags
-    * The timestamp defaults to `time.Now()` (you can override this behavior)
-    * Fields of type _error_ are written as strings using `error.Error()`
-    * Thread-safe, shared serialization buffers avoid buffer object churn
+  * A fluent interface for adding fields and tags
+  * The timestamp defaults to `time.Now()` (you can override this behavior)
+  * Fields of type _error_ are written as strings using `error.Error()`
+  * Thread-safe, shared serialization buffers avoid buffer object churn
 
 Since the intent here is to create a metric then write it, a metric encoder is included.  The encoder
 can write to either an `io.Writer` or `[]byte`.
