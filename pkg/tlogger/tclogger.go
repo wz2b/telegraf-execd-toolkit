@@ -3,8 +3,6 @@ package tlogger
 import (
 	"fmt"
 	"io"
-	"os"
-
 	mpool "telegraf-execd-toolkit/pkg/line-metric-encoder"
 )
 
@@ -13,15 +11,13 @@ type lineLogger struct {
 
 	writer io.Writer
 	pool   *mpool.MetricEncoderPool
-
 }
 
-func newLineLogger(config *
-	TelegrafLoggerConfig) *lineLogger {
+func newLineLogger(config *TelegrafLoggerConfig, outputStream io.Writer) *lineLogger {
 	logger := &lineLogger{
-		config:*config,
-		writer:    os.Stderr,
-		pool:      mpool.NewMetricEncoderPool(),
+		config: *config,
+		writer: outputStream,
+		pool:   mpool.NewMetricEncoderPool(),
 	}
 
 	return logger
@@ -44,8 +40,7 @@ func (l *lineLogger) Log(keyvals ...interface{}) error {
 		value := keyvals[i+1]
 		enc.AddField(key, value)
 	}
-	_, err := enc.Write( l.writer )
+	_, err := enc.Write(l.writer)
 
 	return err
 }
-
