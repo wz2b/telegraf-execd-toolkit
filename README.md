@@ -1,21 +1,30 @@
 # Telegraf Execd Toolkit
 
-This library is a set of useful tools for quickly building a telegraf
-external plugin.  It includes some wrappers around:
+This library is a set of (hopefully) useful tools for building telegraf
+external plugins.  There are two main reasons to consider using this:
 
-* Metric output, in a format that's compatible with telegraf but without a lot
-  of boilerplate
-* Logging, in a way that's configurable by the user via the command line and
-  can feed log messages into telegraf as metrics, or be directed elsewhere
-  
+    * Reduce boilerplate code when it comes to generating output (metrics)
+    * Make plugin log handling (logs about the plugin itself) flexible but consistent across all external plugins
+
+Metric serialization (encoding the metrics to bytes, to a string, or to an io.Writer like standard output) is
+accomplished with an easy-to-use encoding pool that tries to minimize buffer churn.  Logging can be configured
+by parsing command line flags, which is optional but encouraged.  If used, a plugin can be configured as:
+
+```toml
+[[inputs.execd]]
+  command = [
+        "myExternalPlugin",
+        "-log", "stdout",
+        "-log-level", "debug",
+        "-log-format", "line",
+        "-log-metric", "log" ]
+```
 
 ## Metric Generation and Encoding
 
 The toolkit outputs metrics in
 [influx line protocol format](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/),
-a well-documented, simple format that telegraf understands (in fact, if you don't
-specify a different format, line protocol is the default).  The format is simple  From
-Influx Data's description:
+a well-documented, simple format that telegraf understands.  The format is simple:
 
 ```
 // Syntax
@@ -26,19 +35,17 @@ myMeasurement,tag1=value1,tag2=value2 fieldKey="fieldValue" 1556813561098000000
 ```
 
 This format can be built a variety of ways including using influxdata's
-[own library](https://github.com/influxdata/line-protocol) or, in some _very_ simple cases, `fmt.Sprintf`
-(not really recommended).
+[line protocol library](https://github.com/influxdata/line-protocol) or, in some _very_ simple cases, `fmt.Sprintf`
+(that's not really recommended, but possible).
 
-This library provides an alternate approach that removes some of the boilerplate of using
+This library provides an alternate approach that removes some of the boilerplate required by
 the Influx Data library.  The metrics that it creates are still MutableMetrics so you have access to the
-normal MutableMetric methods but with a little bit added:
+normal MutableMetric methods but with a little bit of functionality added on top:
 
-  * There is are fluent methods to add fields and tags, `.WithTags()` and `.WithFields()`, as well as
-to set the timestamp of the record using `.WithTime()`
-  * The timestamp defaults to `time.Now()` (which is usually what you want)
-  * When writing a field, if the field is a go _error_ type it will get converted to a string using `error.Error()`
-  * The encoder shares buffers to avoid buffer object churn
-  * You can create an encoder pool that is thread-safe
+    * A fluent interface for adding fields and tags
+    * The timestamp defaults to `time.Now()` (you can override this behavior)
+    * Fields of type _error_ are written as strings using `error.Error()`
+    * Thread-safe, shared serialization buffers avoid buffer object churn
 
 Since the intent here is to create a metric then write it, a metric encoder is included.  The encoder
 can write to either an `io.Writer` or `[]byte`.
@@ -61,14 +68,13 @@ func main() {
   	metric := metricPool.NewMetric("my_counter").WithField("count", i)
   	metric.Write(os.Stdout)
   	i++
-  	time.Sleep(30 * time.Second)  // or whatever you want to do
+  	time.Sleep(60 * time.Second)  // or whatever you want to do
   }
 }
 ```
 
-Chaining calls against the metric can be helpful or cumbersome depending on the
-complexity of your metrics.  If you don't want to chain, that's perfectly fine.
-_With_ shouldn't be interpreted to imply object creation - it doesn't.  This is
+Chaining calls against the metric can be helpful in some cases, but if you don't want to chain calls
+that's fine too.  _With_ shouldn't be interpreted to imply object copying or creation - it doesn't.  This is
 perfectly acceptable:
 
 ```go
@@ -93,7 +99,7 @@ in the case of `.WithField()` also _error_)
 
 ### Metric Builder
 
-it is also possible to buidl metrics with an even more fluent interface.
+it is possible to build metrics with an even more fluent interface.
 
 ```go
 metric := mp.NewMetric("weather").
@@ -105,11 +111,10 @@ metric := mp.NewMetric("weather").
 	Write(os.Stdout)
 ```
 
-There is also a more specialized `ValueIfNoErr( value interface{}, err error )` whose purpose is to only
-set the value if there is no error (err = nil).  This is completely optional, and really only useful
-if the function you have some kind of parsing function where a non-nullable value may not be valid.
-In the example below, `observation.GetTemperature()` returns `(float, error)`, and the field
-is added to the metric only if err != nil:
+There is also a more specialized `ValueIfNoErr( value interface{}, err error )` whose purpose is to 
+emit a field only there is no error (i.e. err = nil).  This is completely optional, and mainly useful
+if the accessor for the value returns `( interface{}, error )`.  In this example, `observation.GetTemperature()`
+returns a float with a non-nil error if the value could not be fetched:
 
 ```go
 metric := mp.NewMetric("observation").
@@ -119,8 +124,7 @@ metric := mp.NewMetric("observation").
 ```
 
 
-
-## Logging
+## Plugin Logging
 
 The toolkit provides the ability to direct logs to a format and location of your choosing.
 Note that this is not about collecting logs from monitored services/servers/devices.  This
