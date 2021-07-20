@@ -2,8 +2,8 @@ package telegraf_logger
 
 import (
 	"fmt"
+	mpool "github.com/wz2b/telegraf-execd-toolkit/line-metric-encoder"
 	"io"
-	mpool "telegraf-execd-toolkit/pkg/line-metric-encoder"
 )
 
 type lineLogger struct {
