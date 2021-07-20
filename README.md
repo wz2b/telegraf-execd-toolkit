@@ -89,12 +89,25 @@ you want to set the time to something other than the default (`time.Now()`)
 
 ## Logging
 
-This toolkit provides a logger with a variety of features:
+The toolkit provides the ability to direct logs to a format and location of your choosing.
+Note that this is not about collecting logs from monitored services/servers/devices.  This
+is about logging by and of the plugin itself, for debugging or if the external plugin
+itself has something happen that it wants you to note.  An external plug is, of course,
+always able to emit metrics about itself if it chooses.
 
-   * It can write to standard input, standard output, or a file set of your choosing including file rotation and
-    space management using [Lumberjack]("gopkg.in/natefinch/lumberjack.v2").  The default log
-    destination is standard error.
-   * It can write in logfmt, json, or line protocol format.  The default log format is logfmt.
+Most plugins probably don't need this.  They can log to stderr in whatever format they want
+and these entries will end up in telegraf's log (perhaps in /var/log/telegraf/ depending on
+your system).  This logging system gives you a few more options, including redirecting log
+messages to the stream of metrics or to their own file.
+
+Some features include:
+
+  * You can choose to write logs to standard output, standard error, or a file 
+  * You can choose the format: logfmt, json, or line protocol format.  The default log format is logfmt.
+    Writing to line-protocol is useful if you have occasional logs and you want to redirect them
+    to the metric stream.  This is especially useful if the destination is something like mqtt.
+  * Log rotation and space management (when writing to log files) using 
+    [Lumberjack]("gopkg.in/natefinch/lumberjack.v2").
 
 Logging can be configured via command line options or manually.  The logger that is created is
 a level-aware go-kit/log.  Example usage:
