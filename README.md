@@ -87,6 +87,39 @@ get added in the future) so you are encouraged to use `.WithField()` and `.WithT
 if you want to write a bunch of metrics sharing the same timestamp - or any other reason
 you want to set the time to something other than the default (`time.Now()`)
 
+Both `.AddField()` and `.WithField()` silently ignore (and don't add) any field whose value is nil
+or for some reason not convertible to one of the standard line metric types (numbers, strings, and
+in the case of `.WithField()` also _error_)
+
+### Metric Builder
+
+it is also possible to buidl metrics with an even more fluent interface.
+
+```go
+metric := mp.NewMetric("weather").
+	WithTime(*t).
+	BuildTag("station").Value("My_House").
+	BuildField("temperature").Value(112.5").
+	BuildField("how_I_feel").Value("hot").
+		...
+	Write(os.Stdout)
+```
+
+There is also a more specialized `ValueIfNoErr( value interface{}, err error )` whose purpose is to only
+set the value if there is no error (err = nil).  This is completely optional, and really only useful
+if the function you have some kind of parsing function where a non-nullable value may not be valid.
+In the example below, `observation.GetTemperature()` returns `(float, error)`, and the field
+is added to the metric only if err != nil:
+
+```go
+metric := mp.NewMetric("observation").
+	BuildField("temperature").ValueIfNoErr(observation.GetTemperature())
+        ...
+    Write(os.Stdout)
+```
+
+
+
 ## Logging
 
 The toolkit provides the ability to direct logs to a format and location of your choosing.
