@@ -1,4 +1,4 @@
-module telegraf-execd-toolkit/v0.0.0-unpublished
+module github.com/wz2b/telegraf-execd-toolkit
 
 go 1.16
 
