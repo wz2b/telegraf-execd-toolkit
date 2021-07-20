@@ -35,8 +35,10 @@ in mind that a number of times I have thought I needed a custom plugin when one 
 might have worked - for example, the HTTP input can get data from servers using one of the standard
 input formats (such as json) which probably covers 90% of REST use cases.
 
-Most importantly, have fun with the idea of using telegraf as a general-purpose agent.  I wrote this
-because Telegraf is one of my favorite open-source projects and it's the glue of my IoT and IIoT world.
+I wrote this library because I found I was writing a lot of tiny, specialized input plugins and
+copying the same code over and over.  That seemed like a good reason to create a separate
+library.  Telegraf is one of my favorite open-source projects, and ss the glue of my IoT and IIoT world.
+This library made my life easier; my hope is that it will for you, too.
 
 ## Metric Generation and Encoding
 
@@ -213,6 +215,9 @@ to do that using this library, one of two things will happen:
     comment mark _#_ consistent with line protocol standards.  If data were being piped directly
     into influxdb this line would be ignored.  Telegraf still sees this as an error, though, and
     will write it to the telegraf log.
+  * Your use case may vary, but in general, the only reason to write to standard output is if you're
+    using line protocol i.e. you want the log output to appear as if it were a metric.  Some day
+    this might change depending on what happens with Telegraf message handling long-term.
  
 
 Generally speaking, telegraf logging for execd plugins would benefit from some improvement.  If

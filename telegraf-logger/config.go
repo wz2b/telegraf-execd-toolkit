@@ -31,7 +31,7 @@ func NewTelegrafLoggerConfiguration(useFlags bool) (*TelegrafLoggerConfig, error
 
 		flagset.StringVar(&logFactory.LogFile, "log", "stderr", "log destination, can be \"stdout\", \"stderr\", or file path")
 		flagset.StringVar(&logFactory.LogLevel, "log-level", "error", "log destination, can be \"stderr\" (default), \"stdout\", or file path")
-		flagset.StringVar(&logFactory.LogFormat, "log-format", "line", "log format, can be \"logfmt\" (default), \"json\", or \"line\"")
+		flagset.StringVar(&logFactory.LogFormat, "log-format", "logfmt", "log format, can be \"logfmt\" (default), \"json\", or \"line\"")
 		flagset.StringVar(&logFactory.LogMetric, "log-metric", "log", "log metric name, used for line protocol")
 
 		err := flagset.Parse(os.Args[1:])
@@ -65,12 +65,12 @@ func (config *TelegrafLoggerConfig) Create() kitlog.Logger {
 
 	var klog kitlog.Logger
 	switch strings.ToLower(config.LogFormat) {
-	default:
-		fallthrough
 
 	case "line":
 		klog = NewLineLogger(config, outputStream)
 
+	default:
+		fallthrough
 	case "logfmt":
 		w := kitlog.NewSyncWriter(outputStream)
 		klog = kitlog.NewLogfmtLogger(w)
