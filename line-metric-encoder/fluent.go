@@ -27,7 +27,7 @@ func (m *FieldBuilder) Value(value interface{}) *WrappedMetric {
 
 // Emit a field if err != nil
 func (m *FieldBuilder) ValueIfNoErr(value interface{}, err error) *WrappedMetric {
-	if err != nil {
+	if err == nil {
 		return m.Value(value)
 	}
 	return m.wrappedMetric
@@ -48,7 +48,7 @@ func (m *TagBuilder) Value(value string) *WrappedMetric {
 
 // Emit a tag if err != nil
 func (m *TagBuilder) ValueIfNoErr(value string, err error) *WrappedMetric {
-	if err != nil {
+	if err == nil {
 		return m.Value(value)
 	}
 	return m.wrappedMetric

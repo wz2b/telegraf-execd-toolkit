@@ -86,7 +86,7 @@ func main() {
   i := 0
   for {
   	metric := metricPool.NewMetric("my_counter").WithField("count", i)
-  	metric.Write(os.Stdout)
+  	metric.Write(os.Stdout)  // can also call metric.Print() which writes to stdout
   	i++
   	time.Sleep(60 * time.Second)  // or whatever you want to do
   }
@@ -102,7 +102,7 @@ metric := metricPool.NewMetric("my_counter")
 metric.WithTime(time.Now()) // if you want to set it to something else
 metric.WithField("count", i)
 metric.WithTag("importance", "none")
-metric.Write(os.Stdout)
+metric.Print()
 ```
 
 and of course since our metric is still a MutableMetric you can use `.AddField()` and `.AddTag()`

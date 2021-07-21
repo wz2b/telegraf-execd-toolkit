@@ -3,6 +3,7 @@ package line_metric_encoder
 import (
 	protocol "github.com/influxdata/line-protocol"
 	"io"
+	"os"
 	"time"
 )
 
@@ -41,6 +42,10 @@ func (m *WrappedMetric) WithField(key string, value interface{}) *WrappedMetric 
 
 	m.AddField(key, value)
 	return m
+}
+
+func (m *WrappedMetric) Print() (int, error) {
+	return m.Write(os.Stdout)
 }
 
 func (m *WrappedMetric) Write(out io.Writer) (int, error) {
